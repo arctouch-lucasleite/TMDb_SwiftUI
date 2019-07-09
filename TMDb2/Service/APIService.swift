@@ -6,6 +6,7 @@
 //  Copyright © 2019 Lucas Leite. All rights reserved.
 //
 
+import Combine
 import Foundation
 
 struct APIService {
@@ -15,45 +16,50 @@ struct APIService {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
 
-    private func requestEndpoint<T: Decodable>(_ endpoint: APIEndpoint, completion: @escaping (T) -> Void) {
-        let components = endpoint.urlComponents
-        guard let url = components?.url else { return }
-
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            guard let data = data else { return }
-            do {
-                let response = try self.decoder.decode(T.self, from: data)
-                completion(response)
-            } catch {
-                print(error.localizedDescription)
+    private func requestEndpoint<T: Decodable>(_ type: T.Type, _ endpoint: APIEndpoint) -> some Publisher {
+        Just(endpoint.urlComponents)
+            .compactMap { $0?.url }
+            .flatMap {
+                URLSession.shared
+                    .dataTaskPublisher(for: $0)
+                    .catch { _ in Publishers.Empty() }
             }
-        }.resume()
+            .map { $0.data }
+            .decode(type: type, decoder: decoder)
     }
 
-    func requestUpcomingMovies(_ completion: @escaping (APIResponse<Movie>) -> Void) {
-        requestEndpoint(.upcomingMovies, completion: completion)
+    func requestUpcomingMovies(at page: Int = 1) -> some Publisher {
+        requestEndpoint(APIResponse<Movie>.self, .upcomingMovies(page))
     }
 
-    func requestSimilarMovies(as movie: Movie, _ completion: @escaping (APIResponse<Movie>) -> Void) {
-        requestEndpoint(.similarMovies(movie), completion: completion)
+    func requestSearchMovies(with query: String) -> some Publisher {
+        requestEndpoint(APIResponse<Movie>.self, .searchMovies(query))
     }
 
-    func requestGenres(_ completion: @escaping (Genres) -> Void) {
-        requestEndpoint(.genres, completion: completion)
+    func requestSimilarMovies(as movie: Movie) -> some Publisher {
+        requestEndpoint(APIResponse<Movie>.self, .similarMovies(movie))
     }
 
-    func requestTvAiringToday(_ completion: @escaping (APIResponse<TVShow>) -> Void) {
-        requestEndpoint(.tvAiringToday, completion: completion)
+    func requestGenres() -> some Publisher {
+        requestEndpoint(Genres.self, .genres)
     }
 
-    func requestPoster(at path: String, _ completion: @escaping (Data) -> Void) {
-        let path = "https://image.tmdb.org/t/p/w1280\(path)"
+    func requestTvAiringToday() -> some Publisher {
+        requestEndpoint(APIResponse<TVShow>.self, .tvAiringToday)
+    }
 
-        guard let url = URL(string: path) else { return }
+    func requestSimilarTVShows(as tvShow: TVShow) -> some Publisher {
+        requestEndpoint(APIResponse<TVShow>.self, .similarTVShows(tvShow))
+    }
 
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            guard let data = data else { return }
-            completion(data)
-        }.resume()
+    func requestPoster(at path: String) -> some Publisher {
+        Just("https://image.tmdb.org/t/p/w1280\(path)")
+            .compactMap { URL(string: $0) }
+            .flatMap {
+                URLSession.shared
+                    .dataTaskPublisher(for: $0)
+                    .assertNoFailure()
+            }
+            .map { $0.data }
     }
 }

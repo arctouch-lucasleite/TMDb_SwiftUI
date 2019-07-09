@@ -8,15 +8,33 @@
 
 import SwiftUI
 
-struct TVShowDetail : View {
-    @ObjectBinding var request: ImageRequest
+struct SimilarTVShowsList: View {
+    @ObjectBinding var request: SimilarTVShowsRequest
+
+    let tvShow: TVShow
+
+    var body: some View {
+        List(request.result) { tvShow in
+            NavigationLink(destination: TVShowDetail(tvShow: tvShow)) {
+                Text(tvShow.name)
+            }
+        }
+        .listStyle(.default)
+        .frame(height: 300)
+        .onAppear(perform: request.makeRequest)
+    }
+}
+
+struct TVShowDetail: View {
+    @ObjectBinding var imageRequest: ImageRequest
+    @ObjectBinding var similarTVShowsRequest: SimilarTVShowsRequest
 
     let tvShow: TVShow
 
     var body: some View {
         Form {
             Section {
-                request.image
+                imageRequest.image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .padding()
@@ -25,24 +43,23 @@ struct TVShowDetail : View {
             Section {
                 Text(tvShow.name)
                     .font(.largeTitle)
+                    .lineLimit(nil)
+                    .multilineTextAlignment(.center)
                 Text(tvShow.overview)
                     .lineLimit(nil)
             }
+
+            Section(header: Text("Similar TV Shows").font(.headline)) {
+                SimilarTVShowsList(request: similarTVShowsRequest, tvShow: tvShow)
+            }
         }
-        .onAppear(perform: request.makeRequest)
+        .onAppear(perform: imageRequest.makeRequest)
         .navigationBarTitle(Text(tvShow.name), displayMode: .inline)
     }
 
     init(tvShow: TVShow) {
         self.tvShow = tvShow
-        request = ImageRequest(path: tvShow.posterPath ?? "")
+        imageRequest = ImageRequest(path: tvShow.posterPath ?? "")
+        similarTVShowsRequest = SimilarTVShowsRequest(tvShow: tvShow)
     }
 }
-
-#if DEBUG
-struct TVShowDetail_Previews : PreviewProvider {
-    static var previews: some View {
-        TVShowDetail(tvShow: TVShow(id: 0, name: "", overview: "", posterPath: "", backdropPath: ""))
-    }
-}
-#endif

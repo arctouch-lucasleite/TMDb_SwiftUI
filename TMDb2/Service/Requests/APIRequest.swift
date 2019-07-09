@@ -6,21 +6,25 @@
 //  Copyright © 2019 Lucas Leite. All rights reserved.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 class APIRequest<T: Decodable>: BindableObject {
     var didChange = PassthroughSubject<Void, Never>()
 
-    var result: [T] = [] {
+    var request: Cancellable?
+
+    @Published var result: [T] = [] {
         didSet {
-            DispatchQueue.main.async { [weak self] in
-                self?.didChange.send(())
-            }
+            didChange.send()
         }
     }
 
     let service = APIService()
+
+    deinit {
+        request?.cancel()
+    }
 
     func makeRequest() {}
 }

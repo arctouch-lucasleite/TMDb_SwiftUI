@@ -9,6 +9,13 @@
 import SwiftUI
 
 struct TVShowRow: View {
+    static let formatter: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.decimalSeparator = ","
+        formatter.maximumFractionDigits = 2
+        return formatter
+    }()
+
     @ObjectBinding var request: ImageRequest
 
     let tvShow: TVShow
@@ -18,20 +25,24 @@ struct TVShowRow: View {
     }
 
     var body: some View {
-        NavigationButton(destination: detail) {
+        NavigationLink(destination: detail) {
             request.image
                 .resizable()
                 .frame(width: 140, height: 100)
-            
-            Text(tvShow.name)
-                .padding()
+                .cornerRadius(8)
+                .padding(.trailing)
+
+            VStack(alignment: .leading) {
+                Text(tvShow.name)
+                RatingStar(rating: tvShow.voteAverage)
+            }
         }
-        .onAppear(perform: request.makeRequest)
     }
 
     init(tvShow: TVShow) {
         self.tvShow = tvShow
         request = ImageRequest(path: tvShow.backdropPath ?? "")
+        request.makeRequest()
     }
 }
 
@@ -48,18 +59,14 @@ struct TVAiringTodayList: View {
 }
 
 struct TVAiringTodayListNavigation: View {
-    var tvAiringTodayTabLabel: some View {
-        VStack {
-            Image(systemName: "list.bullet")
-            Text("TV Airing Today")
-        }
-    }
-
     var body: some View {
         NavigationView {
             TVAiringTodayList()
         }
-        .tabItemLabel(tvAiringTodayTabLabel)
+        .tabItem {
+            Image(systemName: "tv.fill")
+            Text("TV Airing Today")
+        }
     }
 }
 

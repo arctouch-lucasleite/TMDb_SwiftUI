@@ -13,6 +13,7 @@ struct TVShow: Decodable, Identifiable {
     let id: Int
     let name: String
     let overview: String
+    let voteAverage: Double
     let posterPath: String?
     let backdropPath: String?
 }

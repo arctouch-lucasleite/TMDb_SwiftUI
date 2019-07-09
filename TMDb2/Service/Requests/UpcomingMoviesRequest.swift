@@ -9,9 +9,16 @@
 import Foundation
 
 final class UpcomingMoviesRequest: APIRequest<Movie> {
+    private(set) var nextPage = 1
+
     override func makeRequest() {
-        service.requestUpcomingMovies { [weak self] response in
-            self?.result = response.results
-        }
+        request = service.requestUpcomingMovies(at: nextPage)
+            .compactMap { $0 as? APIResponse<Movie> }
+            .map { $0.results }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] response in
+                self?.result.append(contentsOf: response)
+                self?.nextPage += 1
+            }
     }
 }

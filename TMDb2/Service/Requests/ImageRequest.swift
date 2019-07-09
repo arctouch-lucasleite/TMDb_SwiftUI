@@ -11,27 +11,30 @@ import Foundation
 import SwiftUI
 
 final class ImageRequest: BindableObject {
-    var didChange = PassthroughSubject<Void, Never>()
+    var didChange = CurrentValueSubject<Image, Never>(.init(systemName: "photo"))
 
-    let service = APIService()
-    let path: String
+    var image: Image { didChange.value }
 
-    var image = Image(systemName: "photo") {
-        didSet {
-            DispatchQueue.main.async {
-                self.didChange.send(())
-            }
-        }
-    }
+    private var request: Cancellable?
+
+    private let service = APIService()
+    private let path: String
 
     init(path: String) {
         self.path = path
     }
 
+    deinit {
+        request?.cancel()
+    }
+
     func makeRequest() {
-        service.requestPoster(at: path) { data in
-            guard let uiImage = UIImage(data: data) else { return }
-            self.image = Image(uiImage: uiImage)
-        }
+        request = service.requestPoster(at: path)
+            .compactMap { $0 as? Data }
+            .compactMap { UIImage(data: $0) }
+            .map { Image(uiImage: $0) }
+            .replaceError(with: Image(systemName: "photo"))
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.value, on: didChange)
     }
 }

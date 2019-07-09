@@ -1,22 +1,22 @@
 //
-//  SimiliarMoviesRequest.swift
+//  SearchMoviesRequest.swift
 //  TMDb2
 //
-//  Created by Lucas Leite on 28/06/19.
+//  Created by Lucas Leite on 09/07/19.
 //  Copyright © 2019 Lucas Leite. All rights reserved.
 //
 
 import Foundation
 
-final class SimilarMoviesRequest: APIRequest<Movie> {
-    let movie: Movie
+final class SearchMoviesRequest: APIRequest<Movie> {
+    var query: String
 
-    init(movie: Movie) {
-        self.movie = movie
+    init(query: String) {
+        self.query = query
     }
 
     override func makeRequest() {
-        request = service.requestSimilarMovies(as: movie)
+        request = service.requestSearchMovies(with: query)
             .compactMap { $0 as? APIResponse<Movie> }
             .map { $0.results }
             .replaceError(with: [])

@@ -9,19 +9,26 @@
 import SwiftUI
 
 struct SimilarMoviesList: View {
+    @EnvironmentObject var genresRequest: GenresRequest
+    
     @ObjectBinding var request: SimilarMoviesRequest
 
     let movie: Movie
 
     var body: some View {
         List(request.result) { movie in
-            NavigationButton(destination: MovieDetail(movie: movie), isDetail: true) {
+            NavigationLink(destination: self.detail(for: movie)) {
                 Text(movie.title)
             }
         }
         .listStyle(.plain)
         .frame(height: 300)
         .onAppear(perform: request.makeRequest)
+    }
+
+    func detail(for movie: Movie) -> some View {
+        MovieDetail(movie: movie)
+            .environmentObject(genresRequest)
     }
 }
 
@@ -63,6 +70,7 @@ struct MovieDetail: View {
 
             Section(header: Text("Similar Movies").font(.headline)) {
                 SimilarMoviesList(request: similarMoviesRequest, movie: movie)
+                    .environmentObject(genres)
             }
         }
         .onAppear(perform: imageRequest.makeRequest)
@@ -71,15 +79,7 @@ struct MovieDetail: View {
 
     init(movie: Movie) {
         self.movie = movie
-        imageRequest = ImageRequest(path: movie.posterPath)
+        imageRequest = ImageRequest(path: movie.posterPath ?? "")
         similarMoviesRequest = SimilarMoviesRequest(movie: movie)
     }
 }
-
-#if DEBUG
-struct MovieDetail_Previews: PreviewProvider {
-    static var previews: some View {
-        MovieDetail(movie: Movie(id: 1, title: "", overview: "", posterPath: "", backdropPath: "", releaseDate: "", genreIds: []))
-    }
-}
-#endif

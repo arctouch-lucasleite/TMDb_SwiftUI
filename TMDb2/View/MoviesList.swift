@@ -10,20 +10,21 @@ import SwiftUI
 
 struct MovieRow: View {
     @EnvironmentObject var genres: GenresRequest
-
     @ObjectBinding var request: ImageRequest
 
     let movie: Movie
 
-    var detail: MovieDetail {
+    var detail: some View {
         MovieDetail(movie: movie)
+            .environmentObject(genres)
     }
 
     var body: some View {
-        NavigationButton(destination: detail) {
+        NavigationLink(destination: detail) {
             request.image
                 .resizable()
                 .frame(width: 140, height: 100)
+                .cornerRadius(8)
                 .padding(.trailing)
 
             VStack(alignment: .leading) {
@@ -33,63 +34,43 @@ struct MovieRow: View {
                 Text(movie.genres(for: genres.result).formattedString)
                     .font(.footnote)
                     .padding(.bottom)
-                    .lineLimit(nil)
+
+                RatingStar(rating: movie.voteAverage)
             }
-            .onAppear(perform: request.makeRequest)
         }
     }
 
     init(movie: Movie) {
         self.movie = movie
-        request = ImageRequest(path: movie.backdropPath)
+        request = ImageRequest(path: movie.backdropPath ?? "")
+        request.makeRequest()
     }
 }
 
 struct UpcomingMoviesList: View {
-    @State private var searchText = ""
-
     @ObjectBinding var request = UpcomingMoviesRequest()
 
-    private var movies: [Movie] {
-        searchText.isEmpty ?
-            request.result :
-            request.result.filter { $0.title.lowercased().contains(searchText.lowercased()) }
-    }
-
     var body: some View {
-        VStack {
-            TextField($searchText, placeholder: Text("Search Movie"))
-                .padding()
+        List {
+            ForEach(request.result) { MovieRow(movie: $0) }
 
-            List(movies) { movie in
-                MovieRow(movie: movie)
-            }
-            .onAppear(perform: request.makeRequest)
+            ActivityIndicator()
+                .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                .frame(height: 50, alignment: .center)
+                .onAppear(perform: request.makeRequest)
         }
     }
 }
 
 struct UpcomingMoviesListNavigation: View {
-    private var tabLabel: some View {
-        VStack {
-            Image(systemName: "list.bullet")
-            Text("Upcoming Movies")
-        }
-    }
-
     var body: some View {
         NavigationView {
             UpcomingMoviesList()
-                .navigationBarTitle(Text("Upcoming Movies"))
+                .navigationBarTitle("Upcoming Movies")
         }
-        .tabItemLabel(tabLabel)
+        .tabItem {
+            Image(systemName: "video.fill")
+            Text("Upcoming Movies")
+        }
     }
 }
-
-#if DEBUG
-struct MoviesList_Previews: PreviewProvider {
-    static var previews: some View {
-        UpcomingMoviesListNavigation()
-    }
-}
-#endif
