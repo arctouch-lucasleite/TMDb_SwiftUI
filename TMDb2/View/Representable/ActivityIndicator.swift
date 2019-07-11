@@ -9,6 +9,8 @@
 import SwiftUI
 import UIKit
 
+/// Workaround to represent an UIActivityIndicatorView on SwiftUI
+/// UIViewRepresentable protocol requires these two methods to be implemented
 struct ActivityIndicator: UIViewRepresentable {
     func makeUIView(context: Context) -> UIActivityIndicatorView {
         let activityIndicator = UIActivityIndicatorView()

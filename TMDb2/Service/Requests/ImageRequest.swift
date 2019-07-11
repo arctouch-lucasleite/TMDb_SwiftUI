@@ -30,7 +30,6 @@ final class ImageRequest: BindableObject {
 
     func makeRequest() {
         request = service.requestPoster(at: path)
-            .compactMap { $0 as? Data }
             .compactMap { UIImage(data: $0) }
             .map { Image(uiImage: $0) }
             .replaceError(with: Image(systemName: "photo"))

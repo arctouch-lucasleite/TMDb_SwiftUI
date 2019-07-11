@@ -16,50 +16,69 @@ struct APIService {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
 
-    private func requestEndpoint<T: Decodable>(_ type: T.Type, _ endpoint: APIEndpoint) -> some Publisher {
+    private func requestEndpoint(_ endpoint: APIEndpoint) -> AnyPublisher<Data, Never> {
         Just(endpoint.urlComponents)
             .compactMap { $0?.url }
             .flatMap {
                 URLSession.shared
                     .dataTaskPublisher(for: $0)
+                    // In case of error, returns an empty observer that completes immediately
                     .catch { _ in Publishers.Empty() }
             }
             .map { $0.data }
-            .decode(type: type, decoder: decoder)
+            .eraseToAnyPublisher()
     }
 
-    func requestUpcomingMovies(at page: Int = 1) -> some Publisher {
-        requestEndpoint(APIResponse<Movie>.self, .upcomingMovies(page))
+    func requestUpcomingMovies(at page: Int = 1) -> AnyPublisher<[Movie], Error> {
+        requestEndpoint(.upcomingMovies(page))
+            .decode(type: APIResponse<Movie>.self, decoder: decoder)
+            .map { $0.results }
+            .eraseToAnyPublisher()
     }
 
-    func requestSearchMovies(with query: String) -> some Publisher {
-        requestEndpoint(APIResponse<Movie>.self, .searchMovies(query))
+    func requestMovieReviews(for movie: Movie) -> AnyPublisher<[Review], Error> {
+        requestEndpoint(.movieReviews(movie))
+            .decode(type: APIResponse<Review>.self, decoder: decoder)
+            .map { $0.results }
+            .eraseToAnyPublisher()
     }
 
-    func requestSimilarMovies(as movie: Movie) -> some Publisher {
-        requestEndpoint(APIResponse<Movie>.self, .similarMovies(movie))
+    func requestSimilarMovies(as movie: Movie) -> AnyPublisher<[Movie], Error> {
+        requestEndpoint(.similarMovies(movie))
+            .decode(type: APIResponse<Movie>.self, decoder: decoder)
+            .map { $0.results }
+            .eraseToAnyPublisher()
     }
 
-    func requestGenres() -> some Publisher {
-        requestEndpoint(Genres.self, .genres)
+    func requestGenres() -> AnyPublisher<[Genre], Error> {
+        requestEndpoint(.genres)
+            .decode(type: Genres.self, decoder: decoder)
+            .map { $0.genres }
+            .eraseToAnyPublisher()
     }
 
-    func requestTvAiringToday() -> some Publisher {
-        requestEndpoint(APIResponse<TVShow>.self, .tvAiringToday)
+    func requestTvAiringToday() -> AnyPublisher<[TVShow], Error> {
+        requestEndpoint(.tvAiringToday)
+            .decode(type: APIResponse<TVShow>.self, decoder: decoder)
+            .map { $0.results }
+            .eraseToAnyPublisher()
     }
 
-    func requestSimilarTVShows(as tvShow: TVShow) -> some Publisher {
-        requestEndpoint(APIResponse<TVShow>.self, .similarTVShows(tvShow))
+    func requestTVShowReviews(for tvShow: TVShow) -> AnyPublisher<[Review], Error> {
+        requestEndpoint(.tvShowReviews(tvShow))
+            .decode(type: APIResponse<Review>.self, decoder: decoder)
+            .map { $0.results }
+            .eraseToAnyPublisher()
     }
 
-    func requestPoster(at path: String) -> some Publisher {
-        Just("https://image.tmdb.org/t/p/w1280\(path)")
-            .compactMap { URL(string: $0) }
-            .flatMap {
-                URLSession.shared
-                    .dataTaskPublisher(for: $0)
-                    .assertNoFailure()
-            }
-            .map { $0.data }
+    func requestSimilarTVShows(as tvShow: TVShow) -> AnyPublisher<[TVShow], Error> {
+        requestEndpoint(.similarTVShows(tvShow))
+            .decode(type: APIResponse<TVShow>.self, decoder: decoder)
+            .map { $0.results }
+            .eraseToAnyPublisher()
+    }
+
+    func requestPoster(at path: String) -> AnyPublisher<Data, Never> {
+        requestEndpoint(.image(path))
     }
 }

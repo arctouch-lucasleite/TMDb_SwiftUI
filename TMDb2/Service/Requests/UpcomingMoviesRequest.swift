@@ -13,8 +13,7 @@ final class UpcomingMoviesRequest: APIRequest<Movie> {
 
     override func makeRequest() {
         request = service.requestUpcomingMovies(at: nextPage)
-            .compactMap { $0 as? APIResponse<Movie> }
-            .map { $0.results }
+            .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .sink { [weak self] response in
                 self?.result.append(contentsOf: response)

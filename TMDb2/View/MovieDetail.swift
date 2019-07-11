@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SimilarMoviesList: View {
     @EnvironmentObject var genresRequest: GenresRequest
-    
+
     @ObjectBinding var request: SimilarMoviesRequest
 
     let movie: Movie
@@ -37,6 +37,7 @@ struct MovieDetail: View {
 
     @ObjectBinding var imageRequest: ImageRequest
     @ObjectBinding var similarMoviesRequest: SimilarMoviesRequest
+    @ObjectBinding var reviewsRequest: MovieReviewsRequest
 
     let movie: Movie
 
@@ -72,6 +73,15 @@ struct MovieDetail: View {
                 SimilarMoviesList(request: similarMoviesRequest, movie: movie)
                     .environmentObject(genres)
             }
+
+            Section(header: Text("Reviews").font(.headline)) {
+                if reviewsRequest.result.isEmpty {
+                    Text("No Reviews available for this movie")
+                } else {
+                    ReviewList(reviews: reviewsRequest.result)
+                }
+            }
+            .onAppear(perform: reviewsRequest.makeRequest)
         }
         .onAppear(perform: imageRequest.makeRequest)
         .navigationBarTitle(Text(movie.title), displayMode: .inline)
@@ -81,5 +91,6 @@ struct MovieDetail: View {
         self.movie = movie
         imageRequest = ImageRequest(path: movie.posterPath ?? "")
         similarMoviesRequest = SimilarMoviesRequest(movie: movie)
+        reviewsRequest = MovieReviewsRequest(movie: movie)
     }
 }

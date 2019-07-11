@@ -11,8 +11,6 @@ import Foundation
 final class TVAiringTodayRequest: APIRequest<TVShow> {
     override func makeRequest() {
         request = service.requestTvAiringToday()
-            .compactMap { $0 as? APIResponse<TVShow> }
-            .map { $0.results }
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .assign(to: \.result, on: self)

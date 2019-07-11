@@ -12,13 +12,14 @@ import SwiftUI
 class APIRequest<T: Decodable>: BindableObject {
     var didChange = PassthroughSubject<Void, Never>()
 
-    var request: Cancellable?
-
-    @Published var result: [T] = [] {
+    var result: [T] = [] {
         didSet {
             didChange.send()
         }
     }
+
+    /// Keeps a reference to the request and cancels it on deinit
+    internal var request: Cancellable?
 
     let service = APIService()
 

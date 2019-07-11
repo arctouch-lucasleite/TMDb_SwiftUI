@@ -56,7 +56,7 @@ struct UpcomingMoviesList: View {
 
             ActivityIndicator()
                 .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                .frame(height: 50, alignment: .center)
+                // Next page request is triggered when the activity indicator appears
                 .onAppear(perform: request.makeRequest)
         }
     }

@@ -1,14 +1,14 @@
 //
-//  SimiliarMoviesRequest.swift
+//  MovieReviewsRequest.swift
 //  TMDb2
 //
-//  Created by Lucas Leite on 28/06/19.
+//  Created by Lucas Leite on 09/07/19.
 //  Copyright © 2019 Lucas Leite. All rights reserved.
 //
 
 import Foundation
 
-final class SimilarMoviesRequest: APIRequest<Movie> {
+final class MovieReviewsRequest: APIRequest<Review> {
     let movie: Movie
 
     init(movie: Movie) {
@@ -16,9 +16,9 @@ final class SimilarMoviesRequest: APIRequest<Movie> {
     }
 
     override func makeRequest() {
-        request = service.requestSimilarMovies(as: movie)
-            .replaceError(with: [])
+        request = service.requestMovieReviews(for: movie)
             .receive(on: DispatchQueue.main)
+            .replaceError(with: [])
             .assign(to: \.result, on: self)
     }
 }

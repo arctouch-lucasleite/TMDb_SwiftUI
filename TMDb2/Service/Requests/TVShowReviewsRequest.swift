@@ -1,14 +1,14 @@
 //
-//  SimilarTVShowsRequest.swift
+//  TVShowReviewsRequest.swift
 //  TMDb2
 //
-//  Created by Lucas Leite on 03/07/19.
+//  Created by Lucas Leite on 10/07/19.
 //  Copyright © 2019 Lucas Leite. All rights reserved.
 //
 
 import Foundation
 
-final class SimilarTVShowsRequest: APIRequest<TVShow> {
+final class TVShowReviewsRequest: APIRequest<Review> {
     let tvShow: TVShow
 
     init(tvShow: TVShow) {
@@ -16,7 +16,7 @@ final class SimilarTVShowsRequest: APIRequest<TVShow> {
     }
 
     override func makeRequest() {
-        request = service.requestSimilarTVShows(as: tvShow)
+        request = service.requestTVShowReviews(for: tvShow)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
             .assign(to: \.result, on: self)

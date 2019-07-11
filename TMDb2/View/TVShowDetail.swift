@@ -28,6 +28,7 @@ struct SimilarTVShowsList: View {
 struct TVShowDetail: View {
     @ObjectBinding var imageRequest: ImageRequest
     @ObjectBinding var similarTVShowsRequest: SimilarTVShowsRequest
+    @ObjectBinding var reviewsRequest: TVShowReviewsRequest
 
     let tvShow: TVShow
 
@@ -45,6 +46,7 @@ struct TVShowDetail: View {
                     .font(.largeTitle)
                     .lineLimit(nil)
                     .multilineTextAlignment(.center)
+
                 Text(tvShow.overview)
                     .lineLimit(nil)
             }
@@ -52,6 +54,15 @@ struct TVShowDetail: View {
             Section(header: Text("Similar TV Shows").font(.headline)) {
                 SimilarTVShowsList(request: similarTVShowsRequest, tvShow: tvShow)
             }
+
+            Section(header: Text("Reviews").font(.headline)) {
+                if reviewsRequest.result.isEmpty {
+                    Text("No Reviews available for this movie")
+                } else {
+                    ReviewList(reviews: reviewsRequest.result)
+                }
+            }
+            .onAppear(perform: reviewsRequest.makeRequest)
         }
         .onAppear(perform: imageRequest.makeRequest)
         .navigationBarTitle(Text(tvShow.name), displayMode: .inline)
@@ -61,5 +72,6 @@ struct TVShowDetail: View {
         self.tvShow = tvShow
         imageRequest = ImageRequest(path: tvShow.posterPath ?? "")
         similarTVShowsRequest = SimilarTVShowsRequest(tvShow: tvShow)
+        reviewsRequest = TVShowReviewsRequest(tvShow: tvShow)
     }
 }
