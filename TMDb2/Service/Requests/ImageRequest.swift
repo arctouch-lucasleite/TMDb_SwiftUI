@@ -11,9 +11,9 @@ import Foundation
 import SwiftUI
 
 final class ImageRequest: BindableObject {
-    var didChange = CurrentValueSubject<Image, Never>(.init(systemName: "photo"))
+    var willChange = CurrentValueSubject<Image, Never>(.init(systemName: "photo"))
 
-    var image: Image { didChange.value }
+    var image: Image { willChange.value }
 
     private var request: Cancellable?
 
@@ -34,6 +34,6 @@ final class ImageRequest: BindableObject {
             .map { Image(uiImage: $0) }
             .replaceError(with: Image(systemName: "photo"))
             .receive(on: DispatchQueue.main)
-            .assign(to: \.value, on: didChange)
+            .assign(to: \.value, on: willChange)
     }
 }

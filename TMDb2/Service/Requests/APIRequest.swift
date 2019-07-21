@@ -10,11 +10,11 @@ import Combine
 import SwiftUI
 
 class APIRequest<T: Decodable>: BindableObject {
-    var didChange = PassthroughSubject<Void, Never>()
+    var willChange = PassthroughSubject<Void, Never>()
 
     var result: [T] = [] {
         didSet {
-            didChange.send()
+            willChange.send()
         }
     }
 
