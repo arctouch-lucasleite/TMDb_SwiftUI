@@ -7,10 +7,11 @@
 //
 
 import SwiftUI
+import Combine
 
 struct MovieRow: View {
     @EnvironmentObject var genres: GenresRequest
-    @ObjectBinding var request: ImageRequest
+    @ObservedObject var request: ImageRequest
 
     let movie: Movie
 
@@ -48,7 +49,7 @@ struct MovieRow: View {
 }
 
 struct UpcomingMoviesList: View {
-    @ObjectBinding var request = UpcomingMoviesRequest()
+    @ObservedObject private var request = UpcomingMoviesRequest()
 
     var body: some View {
         List {

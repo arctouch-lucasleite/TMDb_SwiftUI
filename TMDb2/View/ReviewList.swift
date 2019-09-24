@@ -17,7 +17,7 @@ struct ReviewRow: View {
                 .font(.subheadline)
 
             Text(review.content)
-                .lineLimit(nil)
+                .lineLimit(50)
                 .padding()
         }
     }
@@ -30,7 +30,5 @@ struct ReviewList: View {
         List(reviews) { review in
             ReviewRow(review: review)
         }
-        .listStyle(.plain)
-        .frame(height: 300)
     }
 }

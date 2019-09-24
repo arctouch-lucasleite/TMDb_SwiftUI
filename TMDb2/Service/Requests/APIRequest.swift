@@ -9,14 +9,8 @@
 import Combine
 import SwiftUI
 
-class APIRequest<T: Decodable>: BindableObject {
-    var willChange = PassthroughSubject<Void, Never>()
-
-    var result: [T] = [] {
-        didSet {
-            willChange.send()
-        }
-    }
+class APIRequest<T: Decodable>: ObservableObject {
+    @Published var result: [T] = []
 
     /// Keeps a reference to the request and cancels it on deinit
     internal var request: Cancellable?
