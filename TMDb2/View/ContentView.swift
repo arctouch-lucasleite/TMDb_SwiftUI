@@ -12,7 +12,7 @@ struct ContentView: View {
     var genresRequest = GenresRequest()
 
     var body: some View {
-        TabbedView {
+        TabView {
             UpcomingMoviesListNavigation()
                 .environmentObject(genresRequest)
                 .tag(0)

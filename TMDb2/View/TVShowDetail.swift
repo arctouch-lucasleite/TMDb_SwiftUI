@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct SimilarTVShowsList: View {
-    @ObjectBinding var request: SimilarTVShowsRequest
+    @ObservedObject var request: SimilarTVShowsRequest
 
     let tvShow: TVShow
 
@@ -19,16 +19,15 @@ struct SimilarTVShowsList: View {
                 Text(tvShow.name)
             }
         }
-        .listStyle(.default)
+        .listStyle(PlainListStyle())
         .frame(height: 300)
-        .onAppear(perform: request.makeRequest)
     }
 }
 
 struct TVShowDetail: View {
-    @ObjectBinding var imageRequest: ImageRequest
-    @ObjectBinding var similarTVShowsRequest: SimilarTVShowsRequest
-    @ObjectBinding var reviewsRequest: TVShowReviewsRequest
+    @ObservedObject var imageRequest: ImageRequest
+    @ObservedObject var similarTVShowsRequest: SimilarTVShowsRequest
+    @ObservedObject var reviewsRequest: TVShowReviewsRequest
 
     let tvShow: TVShow
 
@@ -44,20 +43,19 @@ struct TVShowDetail: View {
             Section {
                 Text(tvShow.name)
                     .font(.largeTitle)
-                    .lineLimit(nil)
                     .multilineTextAlignment(.center)
 
                 Text(tvShow.overview)
-                    .lineLimit(nil)
             }
 
             Section(header: Text("Similar TV Shows").font(.headline)) {
                 SimilarTVShowsList(request: similarTVShowsRequest, tvShow: tvShow)
             }
+            .onAppear(perform: similarTVShowsRequest.makeRequest)
 
             Section(header: Text("Reviews").font(.headline)) {
                 if reviewsRequest.result.isEmpty {
-                    Text("No Reviews available for this movie")
+                    Text("No Reviews available for this TV show")
                 } else {
                     ReviewList(reviews: reviewsRequest.result)
                 }

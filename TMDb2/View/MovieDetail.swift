@@ -11,7 +11,7 @@ import SwiftUI
 struct SimilarMoviesList: View {
     @EnvironmentObject var genresRequest: GenresRequest
 
-    @ObjectBinding var request: SimilarMoviesRequest
+    @ObservedObject var request: SimilarMoviesRequest
 
     let movie: Movie
 
@@ -21,7 +21,7 @@ struct SimilarMoviesList: View {
                 Text(movie.title)
             }
         }
-        .listStyle(.plain)
+        .listStyle(PlainListStyle())
         .frame(height: 300)
         .onAppear(perform: request.makeRequest)
     }
@@ -35,9 +35,9 @@ struct SimilarMoviesList: View {
 struct MovieDetail: View {
     @EnvironmentObject var genres: GenresRequest
 
-    @ObjectBinding var imageRequest: ImageRequest
-    @ObjectBinding var similarMoviesRequest: SimilarMoviesRequest
-    @ObjectBinding var reviewsRequest: MovieReviewsRequest
+    @ObservedObject var imageRequest: ImageRequest
+    @ObservedObject var similarMoviesRequest: SimilarMoviesRequest
+    @ObservedObject var reviewsRequest: MovieReviewsRequest
 
     let movie: Movie
 
@@ -54,11 +54,9 @@ struct MovieDetail: View {
                 Text(movie.title)
                     .font(.largeTitle)
                     .multilineTextAlignment(.center)
-                    .lineLimit(nil)
 
                 Text(movie.overview)
                     .font(.body)
-                    .lineLimit(nil)
 
                 Text(movie.genres(for: genres.result).formattedString)
                     .font(.subheadline)

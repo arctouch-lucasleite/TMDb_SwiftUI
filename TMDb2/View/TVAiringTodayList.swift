@@ -16,7 +16,7 @@ struct TVShowRow: View {
         return formatter
     }()
 
-    @ObjectBinding var request: ImageRequest
+    @ObservedObject var request: ImageRequest
 
     let tvShow: TVShow
 
@@ -47,7 +47,7 @@ struct TVShowRow: View {
 }
 
 struct TVAiringTodayList: View {
-    @ObjectBinding var request = TVAiringTodayRequest()
+    @ObservedObject var request = TVAiringTodayRequest()
 
     var body: some View {
         List(request.result) { tvShow in
