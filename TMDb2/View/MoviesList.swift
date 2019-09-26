@@ -39,12 +39,12 @@ struct MovieRow: View {
                 RatingStar(rating: movie.voteAverage)
             }
         }
+        .onAppear(perform: request.makeRequest)
     }
 
     init(movie: Movie) {
         self.movie = movie
         request = ImageRequest(path: movie.backdropPath ?? "")
-        request.makeRequest()
     }
 }
 

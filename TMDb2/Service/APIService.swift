@@ -22,7 +22,7 @@ struct APIService {
             .flatMap {
                 URLSession.shared
                     .dataTaskPublisher(for: $0)
-                    // In case of error, returns an empty observer that completes immediately
+                    // In case of error, returns an empty publisher that completes immediately
                     .catch { _ in Empty() }
             }
             .map { $0.data }
