@@ -23,7 +23,6 @@ struct SimilarMoviesList: View {
         }
         .listStyle(PlainListStyle())
         .frame(height: 300)
-        .onAppear(perform: request.makeRequest)
     }
 
     func detail(for movie: Movie) -> some View {
@@ -79,9 +78,7 @@ struct MovieDetail: View {
                     ReviewList(reviews: reviewsRequest.result)
                 }
             }
-            .onAppear(perform: reviewsRequest.makeRequest)
         }
-        .onAppear(perform: imageRequest.makeRequest)
         .navigationBarTitle(Text(movie.title), displayMode: .inline)
     }
 
@@ -90,5 +87,8 @@ struct MovieDetail: View {
         imageRequest = ImageRequest(path: movie.posterPath ?? "")
         similarMoviesRequest = SimilarMoviesRequest(movie: movie)
         reviewsRequest = MovieReviewsRequest(movie: movie)
+        imageRequest.makeRequest()
+        similarMoviesRequest.makeRequest()
+        reviewsRequest.makeRequest()
     }
 }

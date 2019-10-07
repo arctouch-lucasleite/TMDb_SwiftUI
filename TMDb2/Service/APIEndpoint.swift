@@ -22,19 +22,19 @@ enum APIEndpoint {
         switch self {
         case .genres:
             return "genre/movie/list"
-        case .image(let path):
+        case let .image(path):
             return path
         case .upcomingMovies:
             return "movie/upcoming"
-        case .movieReviews(let movie):
+        case let .movieReviews(movie):
             return "movie/\(movie.id)/reviews"
         case .tvAiringToday:
             return "tv/airing_today"
-        case .tvShowReviews(let tvShow):
+        case let .tvShowReviews(tvShow):
             return "tv/\(tvShow.id)/reviews"
-        case .similarMovies(let movie):
+        case let .similarMovies(movie):
             return "movie/\(movie.id)/similar"
-        case .similarTVShows(let tvShow):
+        case let .similarTVShows(tvShow):
             return "tv/\(tvShow.id)/similar"
         }
     }
@@ -50,7 +50,7 @@ enum APIEndpoint {
         switch self {
         case .image:
             break
-        case .upcomingMovies(let page):
+        case let .upcomingMovies(page):
             components?.queryItems?.append(URLQueryItem(name: "page", value: "\(page)"))
             fallthrough
         default:

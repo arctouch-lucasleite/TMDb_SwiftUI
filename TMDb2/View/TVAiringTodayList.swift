@@ -37,12 +37,12 @@ struct TVShowRow: View {
                 RatingStar(rating: tvShow.voteAverage)
             }
         }
-        .onAppear(perform: request.makeRequest)
     }
 
     init(tvShow: TVShow) {
         self.tvShow = tvShow
         request = ImageRequest(path: tvShow.backdropPath ?? "")
+        request.makeRequest()
     }
 }
 

@@ -14,9 +14,11 @@ struct SimilarTVShowsList: View {
     let tvShow: TVShow
 
     var body: some View {
-        List(request.result) { tvShow in
-            NavigationLink(destination: TVShowDetail(tvShow: tvShow)) {
-                Text(tvShow.name)
+        List {
+            ForEach(request.result) { tvShow in
+                NavigationLink(destination: TVShowDetail(tvShow: tvShow)) {
+                    Text(tvShow.name)
+                }
             }
         }
         .listStyle(PlainListStyle())
@@ -51,7 +53,6 @@ struct TVShowDetail: View {
             Section(header: Text("Similar TV Shows").font(.headline)) {
                 SimilarTVShowsList(request: similarTVShowsRequest, tvShow: tvShow)
             }
-            .onAppear(perform: similarTVShowsRequest.makeRequest)
 
             Section(header: Text("Reviews").font(.headline)) {
                 if reviewsRequest.result.isEmpty {
@@ -60,9 +61,7 @@ struct TVShowDetail: View {
                     ReviewList(reviews: reviewsRequest.result)
                 }
             }
-            .onAppear(perform: reviewsRequest.makeRequest)
         }
-        .onAppear(perform: imageRequest.makeRequest)
         .navigationBarTitle(Text(tvShow.name), displayMode: .inline)
     }
 
@@ -71,5 +70,8 @@ struct TVShowDetail: View {
         imageRequest = ImageRequest(path: tvShow.posterPath ?? "")
         similarTVShowsRequest = SimilarTVShowsRequest(tvShow: tvShow)
         reviewsRequest = TVShowReviewsRequest(tvShow: tvShow)
+        imageRequest.makeRequest()
+        similarTVShowsRequest.makeRequest()
+        reviewsRequest.makeRequest()
     }
 }
